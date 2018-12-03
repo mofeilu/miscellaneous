@@ -1,0 +1,6 @@
+find –name <filename>     // find the file in current directory
+find  -type d -name <dirname> // find the directory in current directory
+
+
+grep –rnw  --include=’*.hh’  <stringname>  <path>    // find string in certain type of files in certain dir
+(-r means recursively,   -w means match the whole word)
