@@ -1,0 +1,256 @@
+qmon& :  look up job status on device machine
+
+qsub mpirun_device:   submit job to run
+P-Quatom, make in debug mode:
+Make MEHOD=dbg
+=======================about module==================
+module purge // clean all modules
+module ava <name>  // see available modules related to <name>
+module load <name>  // load the corresponding module
+module unload <name> // clean the module <name>
+module list // see the list of modules
+
+======================about shared library and binaries===============
+Check the defined symbols of .so file:    nm <filename>
+Check the rpath of .so or binary file:  
+(1)	readelf –d <filename>
+(2)	objdump –x <filename> | grep RPATH   //or grep RUNPATH
+
+==========================gnu plot==================================
+Set axis:
+set xrange[1:10] 
+set autoscale x
+set xtics font "Times-Roman, 30" 
+
+set line style: http://gnuplot.sourceforge.net/docs_4.2/node237.html
+set style line 1 lt 2 lw 2 pt 3 ps 0.5 
+// define a line style 1, with line type 2(green), linewith 2, point type 3, point  size 0.5
+
+Plot f(x) ls 1 // plot f(x), use the above defined line style 1.
+
+Set logscale  y  // set logscale to y axis
+
+Set font:
+set xtics font "Times-Roman, 30" 
+
+
+======================vim tips===========================
+
+Recover from ctrl+s:  using ctrl+q
+
+
+
+==============================git command=====================================
+gitk  // see git history
+git ls-files   // check the files in current dir that are on git reposory
+git status
+git status –-untracked-files=no
+git log
+git log –-author=yang
+git checkout < 5 digits of commit #>   // go back to certain snapshot
+git checkout –f <commit #>  // checkout the snapshot by force
+git checkout master/head   // go to top(newest) snapshot
+git diff –status <commit #1>..< commit #2>    // compare all files
+git diff –status <commit #1>..<commit #2>  <filename>   // compare specific file
+git commit –am ‘comments…’
+gitk <filename>:  see the change history. 
+git rm --cached filename    // untrack file
+
+example of git clone:
+git clone ssh://git-pop@device01/~/POP.git
+
+online tutorial of git: https://www.atlassian.com/git/
+
+
+
+=============================git cheat sheet ============================
+Force git to overwrite local files on pull
+git fetch --all
+git reset --hard origin/master
+git fetch downloads the latest from remote without trying to merge or rebase anything. 
+Then the git reset resets the master branch to what you just fetched.
+
+http://stackoverflow.com/questions/1125968/force-git-to-overwrite-local-files-on-pull
+
+undo a git mege:
+http://stackoverflow.com/questions/2389361/undo-a-git-merge
+
+http://www.gitguys.com/topics/merging-with-a-conflict-conflicts-and-resolutions/
+git show test:README
+
+git ls-files -u
+•	1: The “common ancestor” of the file (the version of the file that both the current and other branch originated from).
+•	2: The version from the current branch (the master branch in this case).
+•	3: The version from the other branch (the test branch)
+
+http://www.gitguys.com/topics/whats-the-deal-with-the-git-index/
+git diff: Show differences between your working directory and the index.
+git diff –cached: Show differences between the index and the most recent commit.
+git diff HEAD: Show the differences between your working directory and the most recent commit.
+
+git branch model:
+git checkout -b branch-ngit merge --no-ff branch-name (no fast forward) 
+git branch -d branch-name
+git push 
+http://nvie.com/posts/a-successful-git-branching-model/
+
+checkout previous files with paths:
+git checkout  7ab2747 -- ./include/simulations/KLMC/DiagProfile.h
+(-- separates versions and paths:   version -- path)
+
+Save unfinished work to temporary files: (http://git-scm.com/book/en/Git-Tools-Stashing)
+git stash; do some other work; git stash apply
+git stash list //list all stash lists
+git stash apply stash@{2} 
+git stash apply --index
+
+git detached head:
+http://stackoverflow.com/questions/5772192/git-how-can-i-reconcile-detached-head-with-master-origin
+
+https://event.on24.com/eventRegistration/prereg/register.jsp?eventid=607903&sessionid=1&key=4BA57B73175EA0C0D1260502E820E969
+
+checkout a single file:
+git checkout [hash_id] filepath
+checkout previous version (detached head)
+git checkout [hash_id]
+go back to master:
+git checkout master
+
+discard all changes:
+For a specific file use:
+git checkout path/to/file/to/revert
+For all unstaged files use:
+git checkout -- .
+Make sure to include the period at the end.
+
+Compare differences:
+git diff 6015c7..1510b3 --stat
+
+atlassian.com/git/tutorial/undoing-changes?_escaped_fragment_=checkout#!checkout
+
+show previous versions git show  filename
+git show HEAD:./Structure.tex   //current one
+git show HEAD^:./Structure.tex  //previous one
+http://stackoverflow.com/questions/610208/how-to-retrieve-a-single-file-from-specific-revision-in-git
+git log --stat filename
+alias: 
+git config --global alias.st status 
+git config --global alias.ci 'commit -v'
+
+http://stackoverflow.com/questions/2553786/how-do-i-alias-commands-in-git
+
+http://git-scm.com/book/ch1-5.html#Your-Editor
+Now that your identity is set up, you can configure the default text editor that will be used when Git needs you to type in a message. By default, Git uses your system’s default editor, which is generally Vi or Vim. If you want to use a different text editor, such as Emacs, you can do the following:
+$ git config --global core.editor emacs
+http://stackoverflow.com/questions/115983/how-do-i-add-an-empty-directory-to-a-git-repository
+
+Modify a file and then commit work to local repository:
+git add filename
+git commit -m “new work” 
+
+Forgot to add file before last commit: 
+git add filename
+git commit --amend
+
+git rm file but keep on disk
+git rm --cached file  
+
+git branching:  http://git-scm.com/book/en/Git-Branching-What-a-Branch-Is
+creating a new branch:     git branch newbr
+checkout a new branch:    git checkout newbr
+return to master branch:  git checkout master
+merge branch to master:  git checkout master;  merge newbr 
+delete a branch:  git branch -d newbr
+check last branch: git branch -v
+Create a branch and switch to it at the same time: git checkout -b iss53
+check whether branches are merged or not: git branch --merged / --no-merged
+synchronizing with remote branch: git pull origin
+
+git rebasing: http://git-scm.com/book/en/Git-Branching-Rebasing
+git rebase and conflict handling: http://gitbook.liuhui998.com/4_2.html
+resolve conflict: check conflicted files, work on conflicted sessions, remove <<<< ==== >>>>, and do git add filename
+When you have resolved this problem run "git rebase --continue".
+If you would prefer to skip this patch, instead run "git rebase --skip".
+To check out the original branch and stop rebasing run "git rebase --abort".
+
+git pull and git merge: http://www.lurklurk.org/gitpix/gitpix.html
+git pull combines git fetch and git merge
+after merge, check conflict files: git ls-files -u (unmerged files)
+
+git log: http://gitready.com/advanced/2009/01/20/bend-logs-to-your-will.html
+git log --stat
+git log --name-status
+git rm --cached -r somedir will stage the deletion of the directory, but doesn't touch anything on disk.
+
+
+=============================gdb notes=========================================
+
+Gdb wiki: https://sourceware.org/gdb/wiki/HomePage
+Print a vector:   (Gdb)  print myVector
+print *(myVector._M_impl._M_start)@myVector.size()
+http://stackoverflow.com/questions/253099/how-do-i-print-the-elements-of-a-c-vector-in-gdb
+
+see the content of array:
+p *array@len
+
+
+use gdb in the command line
+
+$ gdb  Quatom
+$ set args  foo.in
+$ run
+When error message shows,
+$ bt
+Then it will quickly locate the place where error happens 
+
+Catch Silly mistakes with GCC  (should compile in debug mode)
+http://codeforces.com/blog/entry/15547
+
+GCC 4.9.3 does not work with default gdb usr/bin/gdb
+Use gdb 7.10.1 installed by orgul
+
+
+==========================codelite tips====================
+
+Ctrl+mouse left:  can be used to show the value of variables
+When print variable values in gdb, uncheck “Enable debugger full logging”,  it makes the showing much clear
+Then, if want to show the value of a vector, simply “print vector”
+
+
+====================use hotkeys efficiently (get rid of mouse)=======================
+General windows hotkeys
+Ctrl+tab  // switch window within a program
+Alt+tab  //   switch window between programs
+
+Win+left_arrow   // move current window to the left part of current monitor
+Win+right_arrow  // …
+
+Win+shift+left_arrow  // move current window to the left monitor
+Win+shift+right_arrow   // move current window to the right monitor
+Alt + LeftArrow (or backspace)  // go back to previous webpage
+
+For gedit, how to swith between different tabs:
+Ctr+alt+pageup/pagedown
+
+
+================use valgrind for performance analysis
+First compile in gdb mode,
+Then run the following:  (valgrind available on nandsim03)
+valgrind --tool=callgrind ../../bin/Quatom <yourinputfile>  
+you could terminate any time during the running.
+Then  run  kcachegrind
+Load the .out file generated by valgrind then you could see the analysis
+
+Note: make sure you turn off the compile option fsanitize=address which  
+that conflicts with valgrind as both are essentially trying to do more 
+or less the same thing.
+
+
+================use valgrind for memory check==============
+valgrind --leak-check=yes myprog arg1 arg2
+
+
+============ use valgrind for array bound check==================
+Valgrind --tool=exp-sgcheck
+http://stackoverflow.com/questions/2291114/runtime-array-bounds-checking-with-g
+
