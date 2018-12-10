@@ -1,0 +1,40 @@
+#############################################################################
+# configure.sh substitutions
+#############################################################################
+
+# Top directory
+#PROJECT_TOP_INSERT
+
+# ... or specify by hand:
+# PROJECT_TOP = /home/mydir
+
+# Platform build type
+#BUILD_TYPE_INSERT
+
+
+#############################################################################
+# Should not need to edit below, unless adding new platform
+#############################################################################
+
+MAKE      = make
+AR        = ar
+ARFLAGS   = ruv
+AR_FLAGS  = ruv
+RANLIB    = ranlib
+CD        = cd
+ECHO      = echo
+LN        = ln
+LNFLAGS   = -s
+RM        = rm
+RMFLAGS   = -f
+MV        = mv
+MVFLAGS   = -f
+SHELL     = sh
+LIB       = -lm
+LEX       = flex
+YACC      = bison
+
+USER = $(shell whoami)
+
+
+include $(PROJECT_TOP)/mkfiles/make.inc.$(BUILD_TYPE)
