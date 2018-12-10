@@ -1,0 +1,21 @@
+#include ../../../mkfiles/make.inc
+include ../../../mkfiles/Make.common
+SWIG = /workspace/dev-jenkins/lib/POPlibs/swig/bin/swig
+PYINC = /appl/open_tools/python/3.5.1/include/python3.5m
+POPLIB = $(PROJECT_TOP)/lib
+POPINC = $(POPLIB)/include
+
+INCFLAG = -I$(PYINC)
+INCFLAG += -I$(POPINC)
+
+all: pOpt
+
+pOpt:
+	@echo "generating swig wrapped lib of POP: _pOpt.so"
+	@rm -f pOpt.py *.h *.cpp
+	@$(SWIG) -c++ -python $(INCFLAG) -o pOpt_wrap.cpp pOpt.i
+	@echo "CXXFLAGS = " $(CXXFLAGS), "OPT_LEVEL = " $(OPT_LEVEL)  #
+	@$(MPICXX) -shared $(CXXFLAGS) pOpt_wrap.cpp -o _pOpt.so -Wl,-rpath,$(POPLIB) -L$(POPLIB) -lOptim $(INCFLAG)
+
+.PHONY: pOpt
+include ../../../mkfiles/Make.rules
