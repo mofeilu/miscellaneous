@@ -1,0 +1,209 @@
+#MY_LIB_TOP = $(PROJECT_TOP)/libs
+#MY_LIB_TOP = /home/yang.lu/POP/libs
+MY_LIB_TOP = /user/libsync/RHEL7/polaris/POP/libs 
+#LIB_TOP = $(MY_LIB_TOP)
+LIB_TOP = /user/libsync/RHEL7/polaris/POP/libs
+
+# Specify the mkl libary path here
+#INTEL_DIR = /apps/intel/composerxe
+INTEL_DIR = /user/libsync/RHEL7/compiler/intel/composerxe
+
+MY_LD_LIB_PATH = #/home/yang.lu/POP/src/lib
+
+# specify the Python header  include path and swig binary
+#PYINC = /appl/open_tools/python/3.5.1/include/python3.5m  # to python include path
+PYINC = /user/libsync/RHEL7/library/python/3.5.1/include/python3.5m
+#SWIG = /workspace/dev-jenkins/lib/POPlibs/swig/bin/swig   # make sure swig 3.0 and above is installed
+SWIG = /user/libsync/RHEL7/polaris/POP/libs/swig/bin/swig
+
+# Compilers
+
+CUDA_ROOT = /usr/local/cuda-8.0
+CUDA_SDK_ROOT = /usr/local/cuda-8.0/samples
+
+#MPIHOME = /appl/open_tools/mpich/3.2
+MPIHOME = /user/libsync/RHEL7/library/mpich
+MPI_INC = -I$(MPIHOME)/include
+MPI_LIB = -Wl,-rpath,$(MPIHOME)/lib -L$(MPIHOME)/lib
+
+#MPIHOME=/appl/open_tools/mvapich2/gdr/2.2-cuda8.0
+#MPI_INC = -I$(MPIHOME)/include
+#MPI_LIB = -Wl,-rpath,$(MPIHOME)/lib64 -L$(MPIHOME)/lib64 #-lmpicxx -lmpi
+
+CC            = $(MPICC)
+CXX           = $(MPICXX)
+F90           = $(MPIF90)
+F77           = $(MPIF77)
+
+
+#CC = /user/libsync/RHEL7/compiler/gcc-4.9.4/bin/gcc
+#CXX = /user/libsync/RHEL7/compiler/gcc-4.9.4/bin/g++
+
+
+MPICC         = $(MPIHOME)/bin/mpicc
+MPICXX        = $(MPIHOME)/bin/mpicxx
+MPIF77	      = $(MPIHOME)/bin/mpif77
+MPIF90        = $(MPIHOME)/bin/mpif90
+LOADER        = $(MPICXX)
+
+# Compiler flags
+O_LEVEL    = -O3
+CPPFLAGS   = $(O_LEVEL)
+CFLAGS     = $(O_LEVEL) -fPIC -Wall
+CXXFLAGS   = $(O_LEVEL) -fPIC -Wall -std=c++11
+LDFLAGS    =
+FCFLAGS    = $(O_LEVEL) -fPIC
+F77FLAGS   = $(O_LEVEL) -fPIC
+
+
+NVCC = $(CUDA_ROOT)/bin/nvcc
+CUXXFLAGS   = $(O_LEVEL) -arch=sm_60 -std=c++11 --compiler-options -fPIC #--optimize 2 #-G -g#/u/local/cuda/current/include/
+CUPPFLAGS = 
+
+
+
+#BOOST_ROOT = /workspace/dev-jenkins/lib/boost_1_58_0
+
+ifeq ($(METHOD),dbg)
+#ifeq ($(COMPILER),gcc)
+#BOOST_ROOT    = /workspace/dev-jenkins/libdbg/boost_1_58_0
+#CXXFLAGS += -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+CXXFLAGS += -gdwarf-3 -D_FORTIFY_SOURCE=2 -fsanitize=address -fsanitize=undefined #-fno-sanitize-recover
+#CXXFLAGS += -gdwarf-3  -fsanitize=address -fsanitize=undefined #-fno-sanitize-recover
+#CFLAGS   += -gdwarf-3
+#FCFLAGS  += -gdwarf-3
+#endif
+endif
+
+
+###########################################################################
+# preprocessor variables
+# Umfpack, Arpack <--> Petsc, Slepc
+
+CPP_VARIABLE = -DMPICH_IGNORE_CXX_SEEK -DWITH_MPI -DHAVE_STD -DHAVE_NAMESPACES #-DUSE_PETSCSLEPC -DNO_LIBMESH_REFINE #-DTETLIBRARY
+
+#ifeq ($(WHOAMI),honghyun.p)
+#	CPP_VARIABLE += -DUNDER_DEVEL
+#endif
+
+
+# CUDA 
+CUDA_INC = -I$(CUDA_ROOT)/include -I$(CUDA_SDK_ROOT)/common/inc
+CUDA_LIB = -Wl,-rpath,$(CUDA_ROOT)/lib64 -L$(CUDA_ROOT)/lib64 -lcuda -lcudart -lcublas -lcusparse -lcurand -lcudadevrt -lcudart -Wl,-rpath,$(CUDA_SDK_ROOT) -L$(CUDA_SDK_ROOT)
+
+
+# Common include paths
+
+#BOOST_ROOT = /user/libsync/RHEL7/library/gcc-4.9.4/release/boost_1_54_0
+#BOOST_INC = -isystem$(BOOST_ROOT)/include
+#BOOST_LIB_DIR = $(BOOST_ROOT)/lib
+#BOOST_LIB = -Wl,-rpath,$(BOOST_LIB_DIR) -L$(BOOST_LIB_DIR) -lboost_program_options -lboost_regex -lboost_system -lboost_filesystem -lboost_serialization -lboost_unit_test_framework
+
+
+# CUSP
+CUSP_ROOT = /workspace/yanglu/public/cudaTest/cusplibrary-0.5.1_new
+CUSP_INC = -I$(CUSP_ROOT)
+
+
+#FANN
+#FANN_ROOT = $(LIB_TOP)/fann
+#FANN_INC = -isystem$(FANN_ROOT)/include
+#FANN_LIB_DIR = $(FANN_ROOT)/lib
+#FANN_LIB = -Wl,-rpath,$(FANN_LIB_DIR) -L$(FANN_LIB_DIR) -lfann
+
+
+
+# EO
+#EO_INC = -isystem$(LIB_TOP)/eo/eo/src -I$(LIB_TOP)/eo/eo/src/utils -I$(LIB_TOP)/eo/eo/src/mpi -I$(LIB_TOP)/eo/eo/src/serial  # use isystem, no warning of lib codes shown
+#EO_LIB = -Wl,-rpath,$(LIB_TOP)/eo/eo/release/lib -L$(LIB_TOP)/eo/eo/release/lib -leoutils -leo -les -lga -lcma -leoserial -leompi
+
+
+# OPTPP 
+#OPTPP_INC = -I$(LIB_TOP)/optpp/include
+#OPTPP_LIB = -Wl,-rpath,$(LIB_TOP)/optpp/lib -L$(LIB_TOP)/optpp/lib -lopt -lnewmat
+
+#NLOPT
+#NLOPT_INC = -I$(LIB_TOP)/nlopt/include
+#NLOPT_LIB = -Wl,-rpath,$(LIB_TOP)/nlopt/lib -L$(LIB_TOP)/nlopt/lib -lnlopt -lm
+
+#Fparser
+#FPARSER_INC = -I$(LIB_TOP)/fparser/fparser4.5.2
+#FPARSER_LIB = -Wl,-rpath,$(LIB_TOP)/fparser/fparser4.5.2/lib -L$(LIB_TOP)/fparser/fparser4.5.2/lib -lfparser
+
+
+# PDevice
+#PDEVICE_INC = -I/workspace/dev-jenkins/install/draco/Latest/lib/include
+#PDEVICE_LIB = /workspace/dev-jenkins/install/draco/Latest/lib/lib/libdraco.a
+
+# Common link options
+#INTEL_LIB_DIR = $(INTEL_DIR)/lib/intel64
+#INTEL_MKL_INC = -I$(INTEL_DIR)/mkl/include
+#INTEL_MKL_LIB_DIR = $(INTEL_DIR)/mkl/lib/intel64
+#MKL_LIB = -Wl,-rpath,$(INTEL_LIB_DIR) -L$(INTEL_LIB_DIR) -limf -lirng -lintlc -lsvml  -Wl,-rpath,$(INTEL_MKL_LIB_DIR) -L$(INTEL_MKL_LIB_DIR) -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lmkl_blacs_intelmpi_lp64 -liomp5 -lmkl_rt  -lmkl_avx2 -lmkl_avx -lm
+#BLAS_LIB = $(MKL_LIB)
+#LAPACK_LIB = $(MKL_LIB)
+#LAPACK = $(LAPACK_LIB) $(BLAS_LIB) # needed by ARPACK & UMFPACK
+
+
+
+# Armadillo
+#ARMA_DIR = $(LIB_TOP)/arma/usr
+#ARMA_INC = -I$(ARMA_DIR)/include
+#ARMA_LIB = -Wl,-rpath,$(ARMA_DIR)/lib64 -L$(ARMA_DIR)/lib64 -larmadillo
+
+
+# MLpack
+#MLPACK_DIR = $(LIB_TOP)/mlpack/usr/local
+#MLPACK_INC = -isystem$(MLPACK_DIR)/include
+#MLPACK_LIB = -Wl,-rpath,$(MLPACK_DIR)/lib -L$(MLPACK_DIR)/lib -lmlpack
+
+
+#IPOPT
+#IPOPT_DIR = $(LIB_TOP)/ipopt
+#IPOPT_INC = -isystem$(IPOPT_DIR)/include
+#IPOPT_LIB = -Wl,-rpath,$(IPOPT_DIR)/lib -L$(IPOPT_DIR)/lib -lipopt
+
+#CERES
+#CERES_DIR = $(LIB_TOP)/ceres
+#EIGEN_INC = $(LIB_TOP)/eigen/include/eigen3
+#GLOG_INC = $(LIB_TOP)/glog/include
+#CERES_INC = -I$(CERES_DIR)/include -I$(GLOG_INC) -I$(EIGEN_INC)
+#CERES_LIB = -Wl,-rpath,$(CERES_DIR)/lib64 -L$(CERES_DIR)/lib64 -lceres -Wl,-rpath,$(LIB_TOP)/glog/lib -L$(LIB_TOP)/glog/lib -lglog
+
+#DLib
+#DLIB_INC = -I$(LIB_TOP)/dlib/dlib-18.18
+
+#POLYFSU   # polynomial lib from fsu
+#POLYFSU_INC = -I$(LIB_TOP)/polynomialFSU/include
+#POLYFSU_LIB = -Wl,-rpath,$(LIB_TOP)/polynomialFSU/lib -L$(LIB_TOP)/polynomialFSU/lib -lchebshev  -lhermite  -ljacobi  -llaguerre  -llegendre -lsandiarules
+
+#MINPACK  # MINPACK in C++ from fsu
+#MINPACK_DIR = $(LIB_TOP)/cminpack/usr/local
+#MINPACK_INC = -I$(MINPACK_DIR)/include/cminpack-1
+#MINPACK_LIB = -Wl,-rpath,$(MINPACK_DIR)/lib64 -L$(MINPACK_DIR)/lib64 -lcminpack
+
+
+#TASMAN_ROOT = /workspace/dev-jenkins/lib/POPlibs/tasmanian
+#TASMAN_ROOT = $(LIB_TOP)/sparsegrid
+#TASMAN_INC = -I$(TASMAN_ROOT)/include
+#TASMAN_LIB = -Wl,-rpath,$(TASMAN_ROOT)/lib -L$(TASMAN_ROOT)/lib -ltasmaniansparsegrid
+
+#KL1P
+#KL1P_INC = -isystem$(LIB_TOP)/kl1p/KL1p-0.4.2/include
+#KL1P_LIB = $(LIB_TOP)/kl1p/lib/libKLab64.a 
+
+
+#JSON
+JSON_INC = -I$(LIB_TOP)/json/include
+JSON_LIB = -Wl,-rpath,$(LIB_TOP)/json/lib64 -L$(LIB_TOP)/json/lib64 -ljsoncpp
+###################
+
+# FLEXnet
+FLEXNET_INC = -I$(PROJECT_TOP)/FLEXnet/V9.5/include
+FLEXNET_LIB = $(PROJECT_TOP)/FLEXnet/V9.5/lib/libseclm_wrap.a \
+              $(PROJECT_TOP)/FLEXnet/V9.5/lib/lm_new.o \
+              $(PROJECT_TOP)/FLEXnet/V9.5/lib/libseclm.a \
+              $(PROJECT_TOP)/FLEXnet/V9.5/lib/liblmgr.a \
+              $(PROJECT_TOP)/FLEXnet/V9.5/lib/libcrvs.a \
+              $(PROJECT_TOP)/FLEXnet/V9.5/lib/libsb.a
+
