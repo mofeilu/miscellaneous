@@ -1,0 +1,241 @@
+# Common definitions for all Makefiles
+
+
+#PROJ_HOME_INSERT
+
+#You can do it by hand:
+#Proj_home := /home/my_dir/prototype
+
+topdir := $(Proj_home)
+
+include $(Proj_home)/mkfiles/make.inc
+
+
+# ---------------------------------
+# optimization methods
+# ---------------------------------
+
+# the default method is optimized
+ifeq (x$(METHOD),x)
+  METHOD := opt
+endif
+ifeq ($(METHOD),opt)
+  mode := "optimized"
+endif
+ifeq ($(METHOD),dbg)
+  mode := "debug"
+endif
+ifeq ($(METHOD),gcov)
+  mode := "gcov"
+endif
+ifeq ($(METHOD),rel)
+  mode := "release"
+endif
+ifeq ($(METHOD),omp)
+  mode := "openmp"
+endif
+ifeq ($(METHOD),iso)
+  mode := "iso"
+endif
+
+# --------------------------------------------
+# extensions of objects and shared libraries
+# --------------------------------------------
+
+# The file extension for object files.
+obj-suffix := $(METHOD).o
+ifeq ($(METHOD),gcov)
+  obj-suffix = o
+endif
+
+# shared library extension
+shared_libext := so
+
+
+# --------------------------------------------
+# include directories
+# --------------------------------------------
+INCLUDES :=
+
+# this project directory includes
+include_dirs := $(shell find $(topdir)/src -type d -a ! -path "*.svn*" -a ! -path "*/mkfiles")
+SRC_INCLUDES := $(foreach dir,$(include_dirs),-I$(dir))
+SRC_INCLUDES := $(patsubst -I%,%,$(SRC_INCLUDES))
+INCLUDES += $(patsubst %,-I %,$(SRC_INCLUDES))
+
+# preprocessor variables
+INCLUDES += $(CPP_VARIABLE)
+
+# MPI
+INCLUDES += $(MPI_INC)
+
+# CUDA
+INCLUDES += $(CUDA_INC)
+
+
+# CUSP
+INCLUDES += $(CUSP_INC)
+
+# Boost
+#INCLUDES += $(BOOST_INC)
+
+# MKL Lapack
+#INCLUDES += $(INTEL_MKL_INC)
+
+# Armadillo
+#INCLUDES += $(ARMA_INC)
+
+#JSON
+INCLUDES += $(JSON_INC)
+
+#INCLUDES += $(EASYPARSER_INC)
+
+#P-Device
+#INCLUDES += $(PDEVICE_INC)
+
+#CERES
+#INCLUDES += $(CERES_INC)
+
+#POP
+#INCLUDES += $(POP_INC)
+
+#PAGMO
+#INCLUDES += $(PAGMO_INC)
+
+#EHVI
+#INCLUDES += $(EHVI_INC)
+
+
+
+# FLEXnet
+INCLUDES += $(FLEXNET_INC)
+
+# --------------------------------------------
+# libraries to link
+# note: order matters for static linking!
+# --------------------------------------------
+LIBS :=
+
+# MPI (maybe not necessary)
+LIBS += $(MPI_LIB)
+
+# BOOST
+#LIBS += $(BOOST_LIB)
+
+# Lapack
+#LIBS += $(LAPACK_LIB)
+# note: the difference between lp64 and ilp64 is the integer size: ilp64 is for indexing arrays with more than 2e9 entries
+
+# Blas
+#LIBS += $(BLAS_LIB)
+
+
+# Armadillo
+
+#LIBS += $(ARMA_LIB)
+
+#CUDA
+LIBS += $(CUDA_LIB)
+
+# JSON
+LIBS += $(JSON_LIB)
+
+#LIBS += $(EASYPARSER_LIB)
+
+#LIBS += $(PDEVICE_LIB)
+
+#LIBS += $(CERES_LIB)
+
+#LIBS += $(POP_LIB)
+
+#LIBS += $(PAGMO_LIB)
+
+#LIBS += $(EHVI_LIB)
+
+# any other
+LIBS += $(LINK_LIB)
+
+# libraries for linking only (= LIBS + FLEXNET_LIB)
+LINK_LIBS = $(LIBS)
+# FLEXnet
+#ifeq ($(METHOD),rel)
+#LINK_LIBS += $(FLEXNET_LIB)
+#endif
+
+
+# --------------------------------------------
+# compilation and linking flags (from make.inc)
+# CPPFLAGS for C/C++ preprocessor
+# CFLAGS   for C compiler
+# CXXFLAGS for C++ compiler
+# LDFLAGS  for the linker
+# --------------------------------------------
+
+OPT_LEVEL :=
+
+# profiling?
+ifdef PROFILE
+  CXXFLAGS += -pg
+endif
+
+# optimization
+ifeq ($(METHOD),opt)
+   CXXFLAGS += #-fopenmp -DOPENMP
+   OPT_LEVEL = -O3
+endif
+
+ifeq ($(METHOD),dbg)
+  CXXFLAGS += -g -Woverloaded-virtual #-fopenmp -DOPENMP
+  #CXXFLAGS += -DDEBUG -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -g -fopenmp -DOPENMP #memory out bound check
+  #CXXFLAGS += -gdwarf-3 -D_FORTIFY_SOURCE=2 -fsanitize=address -fsanitize=undefined
+  LDFLAGS += -g
+  FCFLAGS  += -g
+  OPT_LEVEL := -O0
+endif
+
+ifeq ($(METHOD),gcov)
+  CXXFLAGS += -g -fprofile-arcs -ftest-coverage -Woverloaded-virtual #-fopenmp -DOPENMP
+  LDFLAGS += -g
+  FCFLAGS  += -g
+  OPT_LEVEL := -O0
+endif
+
+# release
+ifeq ($(METHOD),rel)
+  OPT_LEVEL = -O3
+  CXXFLAGS += -DNDEBUG -DUSE_LICENSE  #-fopenmp -DOPENMP
+endif
+
+ifeq ($(METHOD),omp)
+  CXXFLAGS += -fopenmp #-g -Woverloaded-virtual
+  OPT_LEVEL := -O3
+endif
+
+# add include directories to the preprocessor flags
+CPPFLAGS += $(INCLUDES)
+
+
+# add include directories to the cuda preprocessor flags
+CUPPFLAGS += $(INCLUDES)
+
+# add libraries to the linker flags
+LDFLAGS += $(LIBS)
+
+
+# --------------------------------------------
+# other
+# --------------------------------------------
+
+vpath %.h $(include_dirs)
+
+
+# for the following targets we set the target variable and go down
+# into subdirectories (if defined)
+.PHONY: all clean distclean install
+
+# default target
+all: all-recursive
+
+clean: clean-recursive src-clean
+
+distclean: distclean-recursive src-distclean
