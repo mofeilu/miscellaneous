@@ -1,0 +1,62 @@
+ // plot rectangle
+ ax.add_artist(Rectangle((x0, y0), x1-x0, y1-y0,color=blk_color,fill=True, alpha=alpha, hatch=hatch))
+
+ // add text 
+ ax.annotate(name[i], ((x0+x1)/2, (y0+y1)/2), color='black', fontsize=10, ha='center', va='center')
+
+
+// plot rectangle prism
+def plot_rect_prism(ax, x_range, y_range, z_range, color, alpha=0.1) :
+  xx, yy = np.meshgrid(x_range, y_range)
+  ax.plot_wireframe(xx, yy, z_range[0], color=color, alpha=alpha)
+  ax.plot_surface(xx, yy, z_range[0], color=color, alpha=alpha)
+  ax.plot_wireframe(xx, yy, z_range[1], color=color, alpha=alpha)
+  ax.plot_surface(xx, yy, z_range[1], color=color, alpha=alpha)
+
+
+  yy, zz = np.meshgrid(y_range, z_range)
+  ax.plot_wireframe(x_range[0], yy, zz, color=color, alpha=alpha)
+  ax.plot_surface(x_range[0], yy, zz, color=color, alpha=alpha)
+  ax.plot_wireframe(x_range[1], yy, zz, color=color, alpha=alpha)
+  ax.plot_surface(x_range[1], yy, zz, color=color, alpha=alpha)
+
+  xx, zz = np.meshgrid(x_range, z_range)
+  ax.plot_wireframe(xx, y_range[0], zz, color=color, alpha=alpha)
+  ax.plot_surface(xx, y_range[0], zz, color=color, alpha=alpha)
+  ax.plot_wireframe(xx, y_range[1], zz, color=color, alpha=alpha)
+  ax.plot_surface(xx, y_range[1], zz, color=color, alpha=alpha)
+
+
+
+// plot polygon shape, assume polygon is a np.array with pattern:  x1,y1,x2,y2 .... xn,yn, x1,y1
+shapes = dev["shapes"]
+for shape in shapes :
+    poly = np.array(shape["poly"])
+    xs = poly[::2]
+    ys = poly[1::2]
+    layerID = shape["layer"]
+    zs = np.array([layerPos[layerID]]*np.size(xs))
+    ax.plot(xs, ys, zs,color=colors[layerID%color_num], linestyle='solid', linewidth=2)
+
+
+// plot 3d arrow:
+from matplotlib.patches import FancyArrowPatch
+from mpl_toolkits.mplot3d import proj3d
+
+class Arrow3D(FancyArrowPatch):
+    def __init__(self, xs, ys, zs, *args, **kwargs):
+        FancyArrowPatch.__init__(self, (0,0), (0,0), *args, **kwargs)
+        self._verts3d = xs, ys, zs
+        
+ a = Arrow3D([x1,x2], [y1,y2], [z1,z2], mutation_scale=20,
+                lw=1, arrowstyle="-|>", color="r")
+ ax.add_artist(a)
+        
+
+
+    def draw(self, renderer):
+        xs3d, ys3d, zs3d = self._verts3d
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+        self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
+        FancyArrowPatch.draw(self, renderer)
+
