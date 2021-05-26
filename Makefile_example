@@ -1,0 +1,107 @@
+target    := test
+main      := test
+gpp       := /usr/bin/g++
+
+shared_lib := testLib
+
+INC :=
+LIBS :=
+
+sources = A.cpp B.cpp C.cpp
+
+#topdir := .
+#topdir := src
+#sources := $(shell find $(topdir) -name "*.cpp" ! -path "$(topdir)/$(main).cpp")
+
+
+opt  ?= -O3
+dbg  ?= 
+warn ?= -Wall #-Werror
+
+cppflags     := $(opt) $(dbg) $(warn) -fPIC -fopenmp
+
+
+A_INC = -I/A_DIR/INC
+INC += $(A_INC)
+
+#mkl lib
+INTL_DIR = /intel_dir
+INTL_LIB_DIR = $(INTL_DIR)/compiler/lib/intel64_lin
+MKL_DIR = $(INTL_DIR)/mkl
+MKL_INC = -I$(MKL_DIR)/include
+MKL_LIB_DIR = $(MKL_DIR)/lib/intel64_lin
+MKL_LIB = -Wl,-rpath,$(INTL_LIB_DIR) -L$(INTL_LIB_DIR) -liomp5 -Wl,-rpath,$(MKL_LIB_DIR) -L$(MKL_LIB_DIR) -lmkl_core -lmkl_gnu_thread -lmkl_intel_lp64
+INC += $(MKL_INC)
+LIBS += $(MKL_LIB)
+
+# gcc lib
+gpp_lib = /gcc_lib
+LIBS += -Wl,-rpath,$(gpp_lib)
+
+cppflags += $(INC)
+
+
+all : $(target)
+
+$(target): lib$(shared_lib).so $(main).o
+	@echo "generating binary...$(target)"
+	$(gpp) $(main).o -o $(target) -Bdynamic $(INC) $(LIBS) -Wl,-rpath,. -L. -l$(shared_lib) -fopenmp
+
+
+
+objects :=  $(patsubst %.cpp,%.o,$(sources))
+
+lib$(shared_lib).so : $(objects)
+	@echo "showing all objs: " $(objects)
+	@echo "linking shared lib $(shared_lib)..."
+	$(gpp) -shared $(objects) $(INC) $(LIBS) -o $@
+	@echo "shared lib generated."
+
+
+%.o: %.cpp
+	$(gpp) -c $^ $(cppflags) -o $@
+
+clean:
+	rm -f *.o *.so $(target) makefile.*dep
+
+
+
+#----- Dependency Generation -----
+#
+# If a particular set of sources is non-empty, then have rules for
+# generating the necessary dep files.
+#
+
+ccdep := ccdep.mk
+cdep  := cdep.mk
+
+
+depfiles =
+
+ifneq ($(ccsources),)
+
+depfiles += $(ccdep)
+$(ccdep): $(ccsources)
+	$(gpp) -MM $(ccsources) > $(ccdep)
+
+else
+
+$(ccdep):
+
+endif
+
+
+ifneq ($(csources),)
+
+depfiles += $(cdep)
+$(cdep): $(csources)
+	$(gcc) -MM -x c $(csources) > $(cdep)
+
+else
+
+$(cdep):
+
+endif
+
+.PHONY: dep
+dep: $(depfiles)
