@@ -6,6 +6,6 @@ To create Docker image:
 To run the instance
    ./run_instance.sh
 To stop the instance
-   ./stop_server.sh
+   ./stop_app.sh
 
 
