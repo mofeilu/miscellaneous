@@ -1,3 +1,5 @@
+a example toy folder for configure docker image of your application
+
 To install src files:  (make sure the path in install.sh is correct, copy from src dir to here)
   ./install.sh
 
