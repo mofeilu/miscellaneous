@@ -1,2 +1,2 @@
 mkdir -p src/test
-scp -r <source folder> src/test
+scp -r release src/test
