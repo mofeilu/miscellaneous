@@ -8,4 +8,4 @@ ENV LANGUAGE en_US:en
 
 EXPOSE 9080
 
-CMD bash; echo "running test"; cd /test/release; ./test
+CMD bash; echo "running test"; cd /my_app/release; ./test
